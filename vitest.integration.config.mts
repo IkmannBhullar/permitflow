@@ -1,9 +1,8 @@
-import tsconfigPaths from "vite-tsconfig-paths"
 import { defineConfig } from "vitest/config"
 
 // Integration tests: run against the local Supabase stack (`pnpm db:start`).
 export default defineConfig({
-  plugins: [tsconfigPaths()],
+  resolve: { tsconfigPaths: true },
   test: {
     include: ["tests/integration/**/*.test.ts"],
     environment: "node",
