@@ -5,13 +5,16 @@ Read this first in every session, together with `CLAUDE.md`.
 ## Status: Day 1 complete (Phases 0 and 1). Next: Day 2, Phase 2.
 
 ### Done
+
 **Phase 0**
+
 - Next.js 16.4 scaffold: TS strict, Tailwind v4, React Compiler, `cacheComponents` off.
 - shadcn/ui (Radix, nova), ESLint (with prettier and a service-role import guard), Prettier, Vitest, Playwright.
 - Supabase CLI as a dev dependency; local ports moved to 553xx.
 - CLAUDE.md, .env.example, CI workflow. Node pinned to 24 (`.nvmrc`), because supabase-js needs native WebSocket.
 
 **Phase 1**
+
 - 7 migrations covering:
   - enums
   - tenancy: profiles, orgs, members, invites, RLS helpers, and the `create_organization`, `get_invite`, and `accept_invite` RPCs
@@ -31,9 +34,11 @@ Read this first in every session, together with `CLAUDE.md`.
   - 3 e2e (signup → org → dashboard, logout and login, validation, 404 for a foreign org)
 
 ### In progress
+
 - Nothing mid-flight.
 
 ### Known issues
+
 - In this sandbox, Docker's `desktop` credential helper hangs on image pulls. Workaround:
   `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock DOCKER_CONFIG=<dir with {"auths":{}}> pnpm db:start`.
   On a normal terminal, plain `pnpm db:start` should work.
@@ -42,6 +47,7 @@ Read this first in every session, together with `CLAUDE.md`.
 - Sidebar nav lists only built pages (Dashboard for now). Items are added as each feature lands.
 
 ### Next step
+
 - Phase 2, in this order:
   1. projects CRUD and detail
   2. permits CRUD, table, status dialog, and detail with comments and activity
