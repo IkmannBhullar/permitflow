@@ -1,4 +1,4 @@
-import { PencilIcon } from "lucide-react"
+import { PencilIcon, PlusIcon } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -9,6 +9,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ActivityTimeline } from "@/features/activity/components/activity-timeline"
 import { listActivity } from "@/features/activity/queries"
 import { canEdit, isAdmin } from "@/features/orgs/roles"
+import { PermitFormDialog } from "@/features/permits/components/permit-form-dialog"
+import { ProjectPermitsList } from "@/features/permits/components/project-permits-list"
+import { listProjectPermits } from "@/features/permits/queries"
 import { PROJECT_TYPE_LABELS } from "@/features/projects/constants"
 import { ArchiveProjectButton } from "@/features/projects/components/project-admin-actions"
 import { ProjectFormDialog } from "@/features/projects/components/project-form-dialog"
@@ -34,15 +37,30 @@ export default async function ProjectPage({
   const { orgSlug, projectId } = await params
   const ctx = await getOrgContext(orgSlug)
   if (!ctx) notFound()
-  const [project, members, activity] = await Promise.all([
+  const [project, members, activity, permits] = await Promise.all([
     getProject(ctx.org.id, projectId),
     listMembers(ctx.org.id),
     listActivity(ctx.org.id, { projectId }),
+    listProjectPermits(ctx.org.id, projectId),
   ])
   if (!project) notFound()
 
   const names = memberNames(members)
   const archived = project.status === "archived"
+  const editable = canEdit(ctx.role) && !archived
+  const addPermit = editable ? (
+    <PermitFormDialog
+      orgSlug={orgSlug}
+      members={memberOptions(members)}
+      projects={[{ value: project.id, label: project.name }]}
+      defaultProjectId={project.id}
+      trigger={
+        <Button size="sm">
+          <PlusIcon /> Add permit
+        </Button>
+      }
+    />
+  ) : null
   const details: [string, React.ReactNode][] = [
     ["Type", PROJECT_TYPE_LABELS[project.project_type]],
     ["Address", [project.address, project.city].filter(Boolean).join(", ") || "—"],
@@ -69,7 +87,7 @@ export default async function ProjectPage({
           }
           actions={
             <>
-              {canEdit(ctx.role) && !archived ? (
+              {editable ? (
                 <ProjectFormDialog
                   orgSlug={orgSlug}
                   members={memberOptions(members)}
@@ -123,6 +141,21 @@ export default async function ProjectPage({
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base">Permits</CardTitle>
+          {permits.length > 0 ? addPermit : null}
+        </CardHeader>
+        <CardContent>
+          <ProjectPermitsList
+            permits={permits}
+            orgSlug={orgSlug}
+            names={names}
+            action={addPermit}
+          />
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>
