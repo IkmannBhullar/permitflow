@@ -20,3 +20,7 @@ export const serverEnv = {
   demoUserEmail: () => required("DEMO_USER_EMAIL", z.email()),
   demoUserPassword: () => required("DEMO_USER_PASSWORD"),
 }
+
+/** The "Try the demo" button only renders when the demo credentials exist. */
+export const isDemoConfigured = () =>
+  Boolean(process.env.DEMO_USER_EMAIL && process.env.DEMO_USER_PASSWORD)

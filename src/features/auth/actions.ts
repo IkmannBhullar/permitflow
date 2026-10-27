@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 
 import { fail, invalid, ok, type ActionResult } from "@/lib/action-result"
 import { publicEnv } from "@/lib/env"
+import { isDemoConfigured, serverEnv } from "@/lib/env.server"
 import { reportError } from "@/lib/errors"
 import { safeNext } from "@/lib/redirects"
 import { createClient } from "@/lib/supabase/server"
@@ -64,4 +65,19 @@ export async function logout(): Promise<void> {
   const supabase = await createClient()
   await supabase.auth.signOut()
   redirect("/login")
+}
+
+/** Signs in as the seeded demo project manager. Credentials stay on the server. */
+export async function demoLogin(): Promise<ActionResult> {
+  if (!isDemoConfigured()) return fail("The demo isn't set up on this deployment.")
+  const supabase = await createClient()
+  const { error } = await supabase.auth.signInWithPassword({
+    email: serverEnv.demoUserEmail(),
+    password: serverEnv.demoUserPassword(),
+  })
+  if (error)
+    return fail(
+      reportError("demoLogin", error, "The demo account isn't available right now. Try again soon.")
+    )
+  redirect("/app")
 }

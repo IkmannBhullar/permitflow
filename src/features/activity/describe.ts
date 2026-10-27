@@ -89,7 +89,7 @@ export function describeActivity(
         ? `uploaded version ${m.version} of ${label}`
         : `uploaded ${label}`
     case "commented":
-      return `commented on the ${noun}: “${String(m.excerpt ?? "")}”`
+      return `commented on ${label ? subject : `the ${noun}`}: “${String(m.excerpt ?? "")}”`
     case "archived":
       return `archived ${subject}`
     case "deleted":

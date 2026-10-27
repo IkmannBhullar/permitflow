@@ -104,7 +104,9 @@ export function PermitsTable({
       id: "expires_at",
       accessorKey: "expires_at",
       header: "Expires",
-      cell: ({ row }) => <ExpiryLabel date={row.original.expires_at} />,
+      cell: ({ row }) => (
+        <ExpiryLabel date={row.original.expires_at} status={row.original.status} />
+      ),
       meta: { className: "hidden sm:table-cell" },
     },
   ]

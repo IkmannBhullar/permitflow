@@ -61,6 +61,21 @@ describe("describeActivity", () => {
   })
 })
 
+describe("comment entries", () => {
+  it("name the record when known", () => {
+    expect(
+      describeActivity(
+        {
+          action: "commented",
+          entity_type: "permit",
+          metadata: { name: "Fire alarm", excerpt: "Called the marshal" },
+        },
+        nameOf
+      )
+    ).toBe("commented on permit Fire alarm: “Called the marshal”")
+  })
+})
+
 describe("activityHref", () => {
   it("links tasks to their permit when they have one", () => {
     expect(

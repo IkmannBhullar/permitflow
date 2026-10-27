@@ -5,6 +5,8 @@ import { Disclaimer } from "@/components/disclaimer"
 import { Logo } from "@/components/logo"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Button } from "@/components/ui/button"
+import { DemoLoginButton } from "@/features/auth/components/demo-login-button"
+import { isDemoConfigured } from "@/lib/env.server"
 
 const FEATURES = [
   {
@@ -51,10 +53,16 @@ export default function LandingPage() {
             project: what&apos;s pending, what needs corrections, and what&apos;s about to expire.
           </p>
           <div className="flex flex-wrap gap-3">
-            <Button asChild size="lg">
-              <Link href="/signup">Sign up free</Link>
+            {isDemoConfigured() ? <DemoLoginButton size="lg" /> : null}
+            <Button asChild size="lg" variant={isDemoConfigured() ? "outline" : "default"}>
+              <Link href="/signup">Sign up</Link>
             </Button>
           </div>
+          {isDemoConfigured() ? (
+            <p className="text-sm text-muted-foreground">
+              The demo signs you in as a project manager at a fictional builder. No account needed.
+            </p>
+          ) : null}
         </div>
         <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {FEATURES.map((f) => (

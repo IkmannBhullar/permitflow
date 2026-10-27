@@ -45,7 +45,7 @@ export function ProjectPermitsList({
             </p>
           </div>
           <div className="hidden w-36 sm:block">
-            <ExpiryLabel date={p.expires_at} />
+            <ExpiryLabel date={p.expires_at} status={p.status} />
           </div>
           <PermitStatusBadge status={p.status} />
         </li>

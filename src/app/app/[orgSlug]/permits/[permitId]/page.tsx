@@ -80,7 +80,7 @@ export default async function PermitPage({
     ["Assignee", permit.assignee_id ? names[permit.assignee_id] : "Unassigned"],
     ["Submitted", formatDate(permit.submitted_at)],
     ["Approved", formatDate(permit.approved_at)],
-    ["Expires", <ExpiryLabel key="expires" date={permit.expires_at} />],
+    ["Expires", <ExpiryLabel key="expires" date={permit.expires_at} status={permit.status} />],
     ["Status since", formatDateTime(permit.status_changed_at)],
   ]
 

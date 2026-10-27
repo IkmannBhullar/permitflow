@@ -65,8 +65,24 @@ export function hashToken(token: string) {
 
 export const newToken = () => randomBytes(32).toString("base64url")
 
+/** Every object path under a storage prefix (the Storage API lists one folder level at a time). */
+async function listObjects(db: Client, prefix: string): Promise<string[]> {
+  const { data } = await db.storage.from("documents").list(prefix, { limit: 1000 })
+  const paths: string[] = []
+  for (const entry of data ?? []) {
+    const path = `${prefix}/${entry.name}`
+    if (entry.id === null) paths.push(...(await listObjects(db, path)))
+    else paths.push(path)
+  }
+  return paths
+}
+
 export async function cleanup(orgIds: string[], users: TestUser[]) {
   const db = admin()
+  for (const orgId of orgIds) {
+    const paths = await listObjects(db, orgId)
+    if (paths.length) await db.storage.from("documents").remove(paths)
+  }
   if (orgIds.length) await db.from("organizations").delete().in("id", orgIds)
   for (const user of users) await db.auth.admin.deleteUser(user.id)
 }
