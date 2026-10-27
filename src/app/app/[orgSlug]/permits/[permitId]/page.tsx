@@ -1,4 +1,4 @@
-import { PencilIcon } from "lucide-react"
+import { PencilIcon, PlusIcon } from "lucide-react"
 import type { Metadata } from "next"
 import Link from "next/link"
 import { notFound } from "next/navigation"
@@ -16,9 +16,12 @@ import { ExpiryLabel } from "@/features/permits/components/expiry-label"
 import { PermitFormDialog } from "@/features/permits/components/permit-form-dialog"
 import { PermitStatusBadge } from "@/features/permits/components/permit-status-badge"
 import { StatusChangeDialog } from "@/features/permits/components/status-change-dialog"
-import { getPermit } from "@/features/permits/queries"
+import { getPermit, listProjectPermits } from "@/features/permits/queries"
 import { PERMIT_TYPE_LABELS } from "@/features/permits/status"
 import { listProjectOptions } from "@/features/projects/queries"
+import { TaskFormDialog } from "@/features/tasks/components/task-form-dialog"
+import { TaskList } from "@/features/tasks/components/task-list"
+import { listTasks } from "@/features/tasks/queries"
 import { listMembers, memberNames, memberOptions } from "@/features/team/queries"
 import { getOrgContext } from "@/lib/actions"
 import { formatDate, formatDateTime } from "@/lib/dates"
@@ -38,17 +41,38 @@ export default async function PermitPage({
   const { orgSlug, permitId } = await params
   const ctx = await getOrgContext(orgSlug)
   if (!ctx) notFound()
-  const [permit, members, projects, comments, activity] = await Promise.all([
+  const [permit, members, projects, comments, activity, tasks] = await Promise.all([
     getPermit(ctx.org.id, permitId),
     listMembers(ctx.org.id),
     listProjectOptions(ctx.org.id),
     listComments(ctx.org.id, "permit", permitId),
     listActivity(ctx.org.id, { entity: { type: "permit", id: permitId } }, 50),
+    listTasks(ctx.org.id, { permitId }),
   ])
   if (!permit) notFound()
+  const siblingPermits = (await listProjectPermits(ctx.org.id, permit.project_id)).map((p) => ({
+    value: p.id,
+    label: p.name,
+  }))
 
   const names = memberNames(members)
   const editor = canEdit(ctx.role)
+  const needsCorrections = permit.status === "corrections_required"
+  const addTask = editor ? (
+    <TaskFormDialog
+      orgSlug={orgSlug}
+      projectId={permit.project_id}
+      members={memberOptions(members)}
+      permits={siblingPermits}
+      defaultPermitId={permit.id}
+      defaultCorrection={needsCorrections}
+      trigger={
+        <Button size="sm" variant={needsCorrections ? "default" : "outline"}>
+          <PlusIcon /> {needsCorrections ? "Add correction task" : "Add task"}
+        </Button>
+      }
+    />
+  ) : null
   const details: [string, React.ReactNode][] = [
     ["Type", PERMIT_TYPE_LABELS[permit.permit_type]],
     ["Jurisdiction", permit.jurisdiction || "—"],
@@ -127,6 +151,29 @@ export default async function PermitPage({
                 <p className="text-muted-foreground">Notes</p>
                 <p className="whitespace-pre-wrap">{permit.notes || "No notes yet."}</p>
               </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base">Tasks</CardTitle>
+              {tasks.length > 0 ? addTask : null}
+            </CardHeader>
+            <CardContent>
+              <TaskList
+                tasks={tasks}
+                orgSlug={orgSlug}
+                role={ctx.role}
+                names={names}
+                members={memberOptions(members)}
+                permitOptionsFor={() => siblingPermits}
+                showPermit={false}
+                action={addTask}
+                emptyDescription={
+                  needsCorrections && editor
+                    ? "The reviewer asked for corrections. Add a correction task for each item so nothing is missed."
+                    : undefined
+                }
+              />
             </CardContent>
           </Card>
           <Card>

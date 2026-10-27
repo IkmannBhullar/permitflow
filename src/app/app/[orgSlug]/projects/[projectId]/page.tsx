@@ -18,6 +18,9 @@ import { ProjectFormDialog } from "@/features/projects/components/project-form-d
 import { ProjectProgress } from "@/features/projects/components/project-progress"
 import { ProjectStatusBadge } from "@/features/projects/components/project-status-badge"
 import { getProject } from "@/features/projects/queries"
+import { TaskFormDialog } from "@/features/tasks/components/task-form-dialog"
+import { TaskList } from "@/features/tasks/components/task-list"
+import { listTasks } from "@/features/tasks/queries"
 import { listMembers, memberNames, memberOptions } from "@/features/team/queries"
 import { getOrgContext } from "@/lib/actions"
 import { formatDate } from "@/lib/dates"
@@ -37,11 +40,12 @@ export default async function ProjectPage({
   const { orgSlug, projectId } = await params
   const ctx = await getOrgContext(orgSlug)
   if (!ctx) notFound()
-  const [project, members, activity, permits] = await Promise.all([
+  const [project, members, activity, permits, tasks] = await Promise.all([
     getProject(ctx.org.id, projectId),
     listMembers(ctx.org.id),
     listActivity(ctx.org.id, { projectId }),
     listProjectPermits(ctx.org.id, projectId),
+    listTasks(ctx.org.id, { projectId }),
   ])
   if (!project) notFound()
 
@@ -57,6 +61,20 @@ export default async function ProjectPage({
       trigger={
         <Button size="sm">
           <PlusIcon /> Add permit
+        </Button>
+      }
+    />
+  ) : null
+  const permitOptions = permits.map((p) => ({ value: p.id, label: p.name }))
+  const addTask = editable ? (
+    <TaskFormDialog
+      orgSlug={orgSlug}
+      projectId={project.id}
+      members={memberOptions(members)}
+      permits={permitOptions}
+      trigger={
+        <Button size="sm" variant="outline">
+          <PlusIcon /> Add task
         </Button>
       }
     />
@@ -153,6 +171,24 @@ export default async function ProjectPage({
             orgSlug={orgSlug}
             names={names}
             action={addPermit}
+          />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base">Tasks</CardTitle>
+          {tasks.length > 0 ? addTask : null}
+        </CardHeader>
+        <CardContent>
+          <TaskList
+            tasks={tasks}
+            orgSlug={orgSlug}
+            role={ctx.role}
+            names={names}
+            members={memberOptions(members)}
+            permitOptionsFor={() => permitOptions}
+            action={addTask}
           />
         </CardContent>
       </Card>
