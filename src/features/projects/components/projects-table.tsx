@@ -25,7 +25,7 @@ export function ProjectsTable({
       accessorKey: "name",
       header: "Project",
       cell: ({ row }) => (
-        <div className="min-w-40">
+        <div className="min-w-0 sm:min-w-40">
           <Link
             href={`/app/${orgSlug}/projects/${row.original.id}`}
             className="font-medium hover:underline"
@@ -37,6 +37,7 @@ export function ProjectsTable({
           </p>
         </div>
       ),
+      meta: { className: "whitespace-normal" },
     },
     {
       accessorKey: "project_type",

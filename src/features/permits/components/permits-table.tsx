@@ -36,19 +36,20 @@ export function PermitsTable({
       accessorKey: "name",
       header: "Permit",
       cell: ({ row }) => (
-        <div className="min-w-40">
+        <div className="min-w-0 sm:min-w-40">
           <Link
             href={`/app/${orgSlug}/permits/${row.original.id}`}
             className="font-medium hover:underline"
           >
             {row.original.name}
           </Link>
-          <p className="truncate text-xs text-muted-foreground">
+          <p className="text-xs break-words text-muted-foreground sm:truncate">
             {row.original.application_number ?? "No application #"}
             {row.original.jurisdiction ? ` · ${row.original.jurisdiction}` : ""}
           </p>
         </div>
       ),
+      meta: { className: "whitespace-normal" },
     },
     ...(showProject
       ? [

@@ -36,7 +36,14 @@ export function ExpiryChart({
       >
         <BarChart data={rows} margin={{ left: -16, right: 8 }}>
           <CartesianGrid vertical={false} />
-          <XAxis dataKey="label" tickLine={false} axisLine={false} interval={0} fontSize={11} />
+          <XAxis
+            dataKey="label"
+            tickLine={false}
+            axisLine={false}
+            interval="preserveStartEnd"
+            minTickGap={12}
+            fontSize={11}
+          />
           <YAxis allowDecimals={false} tickLine={false} axisLine={false} />
           <ChartTooltip
             cursor={false}

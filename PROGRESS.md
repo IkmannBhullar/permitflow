@@ -2,7 +2,7 @@
 
 Read this first in every session, together with `CLAUDE.md`.
 
-## Status: Day 1 complete (Phases 0 and 1). Next: Day 2, Phase 2.
+## Status: Day 2 complete (Phases 0–2). Next: Day 3, Phase 3.
 
 ### Done
 
@@ -33,6 +33,23 @@ Read this first in every session, together with `CLAUDE.md`.
   - 71 integration (RLS isolation for tables and storage, viewer read-only, PM can't manage members, invites, triggers, cascades)
   - 3 e2e (signup → org → dashboard, logout and login, validation, 404 for a foreign org)
 
+**Phase 2** (one commit per step, all pushed)
+
+- Projects: create/edit dialog, admin archive/restore (archived = read-only), list with active/archived views and permit progress, detail page with details, progress, permits, tasks, and activity.
+- Permits:
+  - add/edit dialogs
+  - status dialog (approving requires a date, pre-filled with today; enforced by Zod, `buildStatusPatch`, and the DB CHECK)
+  - URL-driven table with search, filters (status incl. "pending", type, project, assignee/unassigned, expiring ≤ N days), sorting, and pagination
+  - detail page with notes, tasks, comments, and history; admin delete
+- Tasks: create/edit, assignee, due date, priority, link to a permit, correction flag (requires a permit), complete/reopen, overdue highlighting, admin delete. Shown on project and permit pages.
+- Team: role changes, remove/leave, last-admin guard, invite links (shown once, hashed, 7-day, single use), pending invites with revoke. Settings: rename org and URL.
+- Dashboard: 7 stat cards linking to filtered views, permits-by-status chart (clickable), expiring-by-week chart, needs attention, upcoming deadlines, recent activity. Aggregation is pure and unit tested.
+- Demo:
+  - `supabase/seed.ts` (`pnpm db:seed`, `pnpm db:reset-demo`) creates Cascade Ridge Builders (Demo) with 4 users, 7 projects, 29 permits, 19 tasks, 4 PDFs (one with 3 versions), comments, and backdated activity
+  - "Try the demo" on the landing and login pages
+- Migration `20261026000100`: comment activity stores the commented record's name.
+- Tests: 64 unit, 71 integration, 11 e2e (including the golden path up to "dashboard numbers update", and the demo login).
+
 ### In progress
 
 - Nothing mid-flight.
@@ -44,15 +61,18 @@ Read this first in every session, together with `CLAUDE.md`.
   On a normal terminal, plain `pnpm db:start` should work.
 - Next 16 refuses to run two dev servers in one folder. If `pnpm dev` is running, run e2e with `E2E_PORT=3000 pnpm test:e2e`.
 - The desktop app's browser pane can't start servers from ~/Desktop (macOS privacy). Start `pnpm dev` from a terminal and open the URL instead.
-- Sidebar nav lists only built pages (Dashboard for now). Items are added as each feature lands.
+- Sidebar nav lists only built pages: Dashboard, Projects, Permits, Team, Settings. Tasks, Documents, and Reports get added in Phase 3.
+- The dashboard loads all of an org's permits in one query. PostgREST's default max-rows (1000) caps this; fine for SMB scale, and documented for ARCHITECTURE.
+- 'Today' is the UTC calendar day everywhere (expiry, overdue). A user in a US evening sees tomorrow's date sooner.
+- 12 orphaned files in the local storage bucket from early integration runs (the cleanup bug is now fixed). Local only and harmless.
+- The demo PM can edit demo data. `pnpm db:reset-demo` restores it; a scheduled reset is planned for deployment.
 
 ### Next step
 
-- Phase 2, in this order:
-  1. projects CRUD and detail
-  2. permits CRUD, table, status dialog, and detail with comments and activity
-  3. basic tasks
-  4. team management and invites UI
-  5. the real dashboard
-  6. the seed script, demo login, and `db:reset-demo`
-  7. extend the golden-path e2e
+- Phase 3 (Day 3 morning), in this order:
+  1. documents: upload via signed URL, versions, PDF preview, download; add to project and permit pages
+  2. tasks page: My tasks and corrections view
+  3. notifications: bell, list, mark read, `generateDueNotifications` with dedupe, cron route, admin "Run now"
+  4. reports: 4 reports, CSV routes, print view
+  5. extend the golden path with PDF upload and CSV export
+- Deployment is waiting on the user running `npx vercel login` and `pnpm supabase login`.
