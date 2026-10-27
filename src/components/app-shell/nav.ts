@@ -2,6 +2,8 @@ import {
   FileCheck2Icon,
   FolderKanbanIcon,
   LayoutDashboardIcon,
+  SettingsIcon,
+  UsersIcon,
   type LucideIcon,
 } from "lucide-react"
 
@@ -16,4 +18,6 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Dashboard", segment: "dashboard", icon: LayoutDashboardIcon },
   { title: "Projects", segment: "projects", icon: FolderKanbanIcon },
   { title: "Permits", segment: "permits", icon: FileCheck2Icon },
+  { title: "Team", segment: "team", icon: UsersIcon },
+  { title: "Settings", segment: "settings", icon: SettingsIcon },
 ]

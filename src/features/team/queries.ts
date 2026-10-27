@@ -41,3 +41,30 @@ export const memberOptions = (members: Member[]) =>
 
 export const memberNames = (members: Member[]): Record<string, string> =>
   Object.fromEntries(members.map((m) => [m.user_id, m.full_name || m.email]))
+
+export type PendingInvite = {
+  id: string
+  email: string
+  role: OrgRole
+  expires_at: string
+  created_at: string
+  expired: boolean
+}
+
+/** Invites not yet accepted or revoked. Admin-only by RLS; others get an empty list. */
+export async function listPendingInvites(orgId: string): Promise<PendingInvite[]> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("invites")
+    .select("id, email, role, expires_at, created_at")
+    .eq("org_id", orgId)
+    .is("accepted_at", null)
+    .is("revoked_at", null)
+    .order("created_at", { ascending: false })
+  if (error) {
+    reportError("listPendingInvites", error)
+    return []
+  }
+  const now = Date.now()
+  return data.map((i) => ({ ...i, expired: new Date(i.expires_at).getTime() <= now }))
+}

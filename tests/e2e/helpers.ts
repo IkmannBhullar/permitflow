@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto"
 
-import { expect, type Page } from "@playwright/test"
+import { expect, type Locator, type Page } from "@playwright/test"
 
 export function uniqueEmail(label: string) {
   return `${label}-${Date.now()}-${randomBytes(2).toString("hex")}@e2e.permitflow.local`
@@ -39,7 +39,7 @@ export async function chooseOption(
   page: Page,
   label: string | RegExp,
   option: string,
-  scope = page.getByRole("dialog")
+  scope: Page | Locator = page.getByRole("dialog")
 ) {
   await scope.getByLabel(label).click()
   await page.getByRole("option", { name: option, exact: true }).click()
