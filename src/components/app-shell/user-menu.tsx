@@ -13,14 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { logout } from "@/features/auth/actions"
-
-export function initials(name: string) {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  return (
-    ((parts[0]?.[0] ?? "") + (parts.length > 1 ? (parts.at(-1)?.[0] ?? "") : "")).toUpperCase() ||
-    "?"
-  )
-}
+import { initials } from "@/lib/initials"
 
 export function UserMenu({ name, email }: { name: string; email: string }) {
   return (
