@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/server"
 import type { Tables } from "@/lib/supabase/database.types"
 
 import { PAGE_SIZE, searchPattern, type PermitFilters } from "./filters"
+import { EXPIRY_IGNORED_STATUSES } from "./status"
 
 export type PermitListRow = Tables<"permits"> & { project: { id: string; name: string } }
 
@@ -30,7 +31,10 @@ export async function listPermits(
   if (f.unassigned) query = query.is("assignee_id", null)
   if (f.expiringDays) {
     const today = todayISO()
-    query = query.gte("expires_at", today).lte("expires_at", addDaysISO(today, f.expiringDays))
+    query = query
+      .gte("expires_at", today)
+      .lte("expires_at", addDaysISO(today, f.expiringDays))
+      .not("status", "in", `(${EXPIRY_IGNORED_STATUSES.join(",")})`)
   }
 
   const from = (f.page - 1) * PAGE_SIZE

@@ -57,6 +57,8 @@ export const PERMIT_STATUSES = Object.keys(PERMIT_STATUS_META) as PermitStatus[]
 
 /** Statuses that count as "pending" on the dashboard. */
 export const PENDING_STATUSES: PermitStatus[] = ["submitted", "under_review"]
+/** Statuses where an expiration date no longer matters (excluded from "expiring soon"). */
+export const EXPIRY_IGNORED_STATUSES: PermitStatus[] = ["closed", "expired", "rejected"]
 /** Statuses that count towards a project's progress. */
 export const DONE_STATUSES: PermitStatus[] = ["approved", "closed"]
 
