@@ -177,3 +177,31 @@
     background: var(--tone);
   }
 }
+
+/* Printing a report: only the page content, in black on white, edge to edge. */
+@media print {
+  @page {
+    margin: 12mm;
+  }
+  [data-slot="sidebar"],
+  [data-slot="sidebar-gap"],
+  [data-slot="sidebar-container"],
+  [data-slot="sidebar-rail"],
+  [data-print="hide"] {
+    display: none !important;
+  }
+  [data-slot="sidebar-wrapper"],
+  [data-slot="sidebar-inset"] {
+    display: block !important;
+    min-height: 0 !important;
+    background: white !important;
+  }
+  html,
+  body {
+    background: white !important;
+    color: black !important;
+  }
+  .dark {
+    color-scheme: light;
+  }
+}

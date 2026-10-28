@@ -31,7 +31,10 @@ export default async function OrgLayout({ children, params }: LayoutProps<"/app/
       <AppSidebar orgs={orgs} currentSlug={ctx.org.slug} />
       <SidebarInset>
         {ctx.org.is_demo ? <DemoBanner /> : null}
-        <header className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 border-b bg-background/95 px-3 backdrop-blur supports-backdrop-filter:bg-background/80">
+        <header
+          data-print="hide"
+          className="sticky top-0 z-10 flex h-12 shrink-0 items-center gap-2 border-b bg-background/95 px-3 backdrop-blur supports-backdrop-filter:bg-background/80"
+        >
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-4!" />
           <span className="truncate text-sm font-medium">{ctx.org.name}</span>

@@ -4,6 +4,7 @@ import {
   FolderKanbanIcon,
   LayoutDashboardIcon,
   ListTodoIcon,
+  ChartColumnIcon,
   SettingsIcon,
   UsersIcon,
   type LucideIcon,
@@ -22,6 +23,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Permits", segment: "permits", icon: FileCheck2Icon },
   { title: "Tasks", segment: "tasks", icon: ListTodoIcon },
   { title: "Documents", segment: "documents", icon: FileTextIcon },
+  { title: "Reports", segment: "reports", icon: ChartColumnIcon },
   { title: "Team", segment: "team", icon: UsersIcon },
   { title: "Settings", segment: "settings", icon: SettingsIcon },
 ]
