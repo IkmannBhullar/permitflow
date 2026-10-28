@@ -47,6 +47,12 @@ test("add a permit, approve it with a date, comment, filter and delete", async (
   await chooseOption(page, "Current status", "Submitted")
   await page.getByRole("dialog").getByRole("button", { name: "Add permit" }).click()
   await expect(page.getByRole("heading", { name: /Plumbing rough-in/ })).toBeVisible()
+  // A permit's history is its own, not the whole project's.
+  const history = page.locator("[data-slot=card]", {
+    has: page.getByRole("heading", { name: "History" }),
+  })
+  await expect(history.getByText("added permit Plumbing rough-in")).toBeVisible()
+  await expect(history.getByText(/Electrical rough-in/)).toHaveCount(0)
 
   await page.getByRole("link", { name: "Permits", exact: true }).click()
   await expect(page.getByText("Showing 1–2 of 2")).toBeVisible()

@@ -26,6 +26,11 @@ export async function listActivity(
   if (scope.projectId) query = query.eq("project_id", scope.projectId)
   if (scope.entity)
     query = query.eq("entity_type", scope.entity.type).eq("entity_id", scope.entity.id)
+  // A permit's full history: its own events plus tasks and documents linked to it.
+  if (scope.permitId) {
+    const id = z.uuid().parse(scope.permitId)
+    query = query.or(`and(entity_type.eq.permit,entity_id.eq.${id}),metadata->>permit_id.eq.${id}`)
+  }
   const { data, error } = await query
   if (error) throw new Error(reportError("listActivity", error))
   return data
