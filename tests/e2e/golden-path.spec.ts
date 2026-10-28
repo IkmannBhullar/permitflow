@@ -88,8 +88,16 @@ test("golden path: register → org → project → permit → assign → correc
     page.getByRole("link", { name: /Building permit – fourplex.*corrections required/ })
   ).toBeVisible()
 
-  // The teammate sees the same numbers in their own session.
+  // The teammate sees the same numbers in their own session, and was notified in-app.
   await teammate.reload()
+  await teammate.getByRole("button", { name: /Notifications, \d+ unread/ }).click()
+  await expect(
+    teammate.getByRole("button", { name: /Building permit – fourplex is now Corrections Required/ })
+  ).toBeVisible()
+  await expect(
+    teammate.getByRole("button", { name: /You were assigned a task.*Revise stair riser heights/ })
+  ).toBeVisible()
+  await teammate.keyboard.press("Escape")
   await expect(
     teammate
       .getByRole("region", { name: "Key numbers" })

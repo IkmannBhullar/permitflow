@@ -7,6 +7,8 @@ import { UserMenu } from "@/components/app-shell/user-menu"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { NotificationBell } from "@/features/notifications/components/notification-bell"
+import { listNotifications } from "@/features/notifications/queries"
 import { getMyProfile, listMyOrgs } from "@/features/orgs/queries"
 import { getOrgContext } from "@/lib/actions"
 
@@ -22,6 +24,7 @@ export default async function OrgLayout({ children, params }: LayoutProps<"/app/
   if (!ctx) notFound()
 
   const sidebarOpen = cookieStore.get("sidebar_state")?.value !== "false"
+  const notifications = await listNotifications(ctx.org.id, ctx.userId, { limit: 8 })
 
   return (
     <SidebarProvider defaultOpen={sidebarOpen}>
@@ -33,6 +36,11 @@ export default async function OrgLayout({ children, params }: LayoutProps<"/app/
           <Separator orientation="vertical" className="h-4!" />
           <span className="truncate text-sm font-medium">{ctx.org.name}</span>
           <div className="ml-auto flex items-center gap-1">
+            <NotificationBell
+              orgSlug={ctx.org.slug}
+              items={notifications.items}
+              unread={notifications.unread}
+            />
             <ThemeToggle />
             <UserMenu name={profile.full_name} email={profile.email} />
           </div>

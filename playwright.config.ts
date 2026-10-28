@@ -1,10 +1,15 @@
 import { defineConfig, devices } from "@playwright/test"
+import { config } from "dotenv"
+
+// Tests that call the cron route need CRON_SECRET from the same env the app uses.
+config({ path: ".env.local", quiet: true })
 
 const PORT = Number(process.env.E2E_PORT ?? 3100)
 const baseURL = `http://localhost:${PORT}`
 
 export default defineConfig({
   testDir: "tests/e2e",
+  globalSetup: "./tests/e2e/global-setup.ts",
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
