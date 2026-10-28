@@ -127,6 +127,7 @@ export default async function DashboardPage({ params }: PageProps<"/app/[orgSlug
           label="Overdue tasks"
           value={stats.overdueTasks}
           icon={ListTodoIcon}
+          href={`${base}/tasks?view=overdue`}
           tone="danger"
         />
       </section>
