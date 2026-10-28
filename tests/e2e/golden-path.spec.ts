@@ -1,19 +1,19 @@
+import { readFile } from "node:fs/promises"
+
 import { expect, test } from "@playwright/test"
 
 import {
   chooseOption,
   createOrg,
   createProject,
+  pdfFile,
   E2E_PASSWORD,
   signUp,
   uniqueEmail,
 } from "./helpers"
 
-/**
- * The brief's golden path. Steps that depend on Day 3 features (PDF upload, CSV export)
- * are added to this test when those features land.
- */
-test("golden path: register → org → project → permit → assign → corrections → task → dashboard", async ({
+/** The brief's golden path, end to end, as two real users. */
+test("golden path: register → org → project → permit → assign → upload PDF → corrections → task → dashboard → CSV", async ({
   page,
   browser,
   baseURL,
@@ -52,6 +52,13 @@ test("golden path: register → org → project → permit → assign → correc
   await dialog.getByRole("button", { name: "Add permit" }).click()
   await expect(page.getByRole("heading", { name: /Building permit – fourplex/ })).toBeVisible()
   await expect(page.locator("dd", { hasText: "Riley Super" })).toBeVisible()
+
+  // Upload the plan set to the permit.
+  await page.getByRole("button", { name: "Upload document" }).click()
+  await page.getByRole("dialog").getByLabel("File").setInputFiles(pdfFile("fourplex-plan-set.pdf"))
+  await page.getByRole("dialog").getByRole("button", { name: "Upload" }).click()
+  await expect(page.getByText("Document uploaded")).toBeVisible()
+  await expect(page.getByRole("link", { name: "fourplex plan set" })).toBeVisible()
 
   // Dashboard before corrections.
   await page.getByRole("link", { name: "Dashboard" }).click()
@@ -103,4 +110,22 @@ test("golden path: register → org → project → permit → assign → correc
       .getByRole("region", { name: "Key numbers" })
       .getByRole("link", { name: /Corrections required\s*1/ })
   ).toBeVisible()
+
+  // Export the outstanding corrections report.
+  await page.getByRole("link", { name: "Reports" }).click()
+  await page.getByRole("link", { name: /Outstanding corrections/ }).click()
+  const downloadPromise = page.waitForEvent("download")
+  await page.getByRole("link", { name: "Export CSV" }).click()
+  const csv = (await readFile((await (await downloadPromise).path())!, "utf8")).replace(
+    /^\uFEFF/,
+    ""
+  )
+  const [header, row, ...rest] = csv.trim().split("\r\n")
+  expect(header).toBe(
+    "Permit,Project,Assignee,Days in corrections,Open correction tasks,Overdue,Next due,Tasks"
+  )
+  expect(row).toMatch(
+    /^Building permit – fourplex,Juniper Street Fourplex,Riley Super,0,1,1,2020-06-01,Revise stair riser heights on A-301 \(Riley Super\)$/
+  )
+  expect(rest).toEqual([])
 })

@@ -2,7 +2,7 @@
 
 Read this first in every session, together with `CLAUDE.md`.
 
-## Status: Day 2 complete (Phases 0–2). Next: Day 3, Phase 3.
+## Status: Phases 0–3 complete (all P0 and P1 features). Next: Phase 4 (hardening), then Phase 5 (deploy).
 
 ### Done
 
@@ -50,6 +50,23 @@ Read this first in every session, together with `CLAUDE.md`.
 - Migration `20261026000100`: comment activity stores the commented record's name.
 - Tests: 64 unit, 71 integration, 11 e2e (including the golden path up to "dashboard numbers update", and the demo login).
 
+**Phase 3** (one commit per step, all pushed)
+
+- Documents:
+  - two-step upload: `prepareUpload` issues a signed upload URL; the browser uploads straight to Storage; `finalizeUpload` re-reads the real size and type
+  - versions, version history, inline PDF/image preview (5-minute signed URL), 60-second signed downloads, admin delete that removes the files
+  - a Documents page, plus sections on the project and permit pages
+- Permit history includes linked tasks and documents. Card titles are `h2`.
+- Tasks page: My tasks, Overdue (linked from the dashboard), Corrections (permits waiting on corrections, flagged when none has an open correction task), All open.
+- Notifications:
+  - bell with unread count, Notifications page, mark read and mark all read
+  - `computeDueNotifications` (pure): 30/14/7-day expiry and overdue-task reminders with dedupe keys
+  - `generateDueNotifications`, run by `/api/cron/due-notifications` (Bearer `CRON_SECRET`) daily via `vercel.json`, plus an admin "Check due dates now" button
+- Reports: project summary, pending, expiring (7–90 days), outstanding corrections. Each has a CSV route (RLS, formula-injection safe, BOM) and print / save-as-PDF styles.
+- E2E runs against a production build (`pnpm build && pnpm start` on :3100), and the demo is reset before every run (global setup).
+- Local Supabase no longer starts Studio or Mailpit, to save CPU on this machine.
+- Tests: 94 unit, 76 integration, 18 e2e. The golden path covers the brief's full flow: register → org → project → permit → assign → upload PDF → corrections → correction task → dashboard numbers → CSV export.
+
 ### In progress
 
 - Nothing mid-flight.
@@ -59,20 +76,23 @@ Read this first in every session, together with `CLAUDE.md`.
 - In this sandbox, Docker's `desktop` credential helper hangs on image pulls. Workaround:
   `DOCKER_HOST=unix://$HOME/.docker/run/docker.sock DOCKER_CONFIG=<dir with {"auths":{}}> pnpm db:start`.
   On a normal terminal, plain `pnpm db:start` should work.
-- Next 16 refuses to run two dev servers in one folder. If `pnpm dev` is running, run e2e with `E2E_PORT=3000 pnpm test:e2e`.
+- `pnpm test:e2e` builds and starts production on :3100, so it can run alongside `pnpm dev` on :3000. `E2E_PORT=3000` reuses the dev server instead (slower; dev compiles on first visit).
 - The desktop app's browser pane can't start servers from ~/Desktop (macOS privacy). Start `pnpm dev` from a terminal and open the URL instead.
-- Sidebar nav lists only built pages: Dashboard, Projects, Permits, Team, Settings. Tasks, Documents, and Reports get added in Phase 3.
 - The dashboard loads all of an org's permits in one query. PostgREST's default max-rows (1000) caps this; fine for SMB scale, and documented for ARCHITECTURE.
 - 'Today' is the UTC calendar day everywhere (expiry, overdue). A user in a US evening sees tomorrow's date sooner.
 - 12 orphaned files in the local storage bucket from early integration runs (the cleanup bug is now fixed). Local only and harmless.
 - The demo PM can edit demo data. `pnpm db:reset-demo` restores it; a scheduled reset is planned for deployment.
+- The landing page is static, so whether "Try the demo" shows is decided at build time from `DEMO_USER_EMAIL` and `DEMO_USER_PASSWORD`. Redeploy after changing them.
+- Headless Chromium shows the "Open the PDF" fallback instead of an inline PDF; real browsers render it inline.
+- If an upload is abandoned between `prepareUpload` and `finalizeUpload`, the stored file stays orphaned (only admins can delete files). Rare and harmless; a cleanup job is possible later.
+- This machine's Docker VM (3.8 GB) also runs other projects' databases, so heavy load slows tests. Production-build e2e avoids most of it.
 
 ### Next step
 
-- Phase 3 (Day 3 morning), in this order:
-  1. documents: upload via signed URL, versions, PDF preview, download; add to project and permit pages
-  2. tasks page: My tasks and corrections view
-  3. notifications: bell, list, mark read, `generateDueNotifications` with dedupe, cron route, admin "Run now"
-  4. reports: 4 reports, CSV routes, print view
-  5. extend the golden path with PDF upload and CSV export
+- Phase 4 (hardening):
+  1. responsive pass at 375, 768, and 1280+ (mobile card layout for tables is P2, optional)
+  2. accessibility pass (keyboard, focus, contrast, labels)
+  3. security review: grep service-role usage, try every mutation as a viewer, error-message audit
+  4. bug fixes
+- Phase 5: README, `docs/ARCHITECTURE.md`, `docs/DEPLOYMENT.md`; hosted Supabase and Vercel; daily demo reset.
 - Deployment is waiting on the user running `npx vercel login` and `pnpm supabase login`.
