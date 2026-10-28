@@ -28,7 +28,7 @@ pnpm db:seed             # create or refresh the demo org (idempotent)
 pnpm db:reset-demo       # wipe and recreate the demo org
 pnpm typecheck && pnpm lint && pnpm test   # = pnpm check
 pnpm test:integration    # RLS and DB tests against local Supabase
-pnpm test:e2e            # Playwright (starts next dev on :3100; if `pnpm dev` is already running, use E2E_PORT=3000)
+pnpm test:e2e            # Playwright against a production build on :3100 (E2E_PORT=3000 reuses a running `pnpm dev`)
 pnpm format              # Prettier (no semicolons, double quotes, 100 cols)
 ```
 

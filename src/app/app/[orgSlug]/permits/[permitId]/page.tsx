@@ -10,6 +10,9 @@ import { ActivityTimeline } from "@/features/activity/components/activity-timeli
 import { listActivity } from "@/features/activity/queries"
 import { CommentsSection } from "@/features/comments/components/comments-section"
 import { listComments } from "@/features/comments/queries"
+import { DocumentList } from "@/features/documents/components/document-list"
+import { UploadDocumentDialog } from "@/features/documents/components/upload-dialog"
+import { listDocuments } from "@/features/documents/queries"
 import { canEdit, isAdmin } from "@/features/orgs/roles"
 import { DeletePermitButton } from "@/features/permits/components/delete-permit-button"
 import { ExpiryLabel } from "@/features/permits/components/expiry-label"
@@ -41,13 +44,14 @@ export default async function PermitPage({
   const { orgSlug, permitId } = await params
   const ctx = await getOrgContext(orgSlug)
   if (!ctx) notFound()
-  const [permit, members, projects, comments, activity, tasks] = await Promise.all([
+  const [permit, members, projects, comments, activity, tasks, documents] = await Promise.all([
     getPermit(ctx.org.id, permitId),
     listMembers(ctx.org.id),
     listProjectOptions(ctx.org.id),
     listComments(ctx.org.id, "permit", permitId),
-    listActivity(ctx.org.id, { entity: { type: "permit", id: permitId } }, 50),
+    listActivity(ctx.org.id, { permitId }, 50),
     listTasks(ctx.org.id, { permitId }),
+    listDocuments(ctx.org.id, { permitId }),
   ])
   if (!permit) notFound()
   const siblingPermits = (await listProjectPermits(ctx.org.id, permit.project_id)).map((p) => ({
@@ -58,6 +62,16 @@ export default async function PermitPage({
   const names = memberNames(members)
   const editor = canEdit(ctx.role)
   const needsCorrections = permit.status === "corrections_required"
+  const upload = editor ? (
+    <UploadDocumentDialog
+      mode="new"
+      orgSlug={orgSlug}
+      projects={[{ value: permit.project_id, label: permit.project.name }]}
+      permitsByProject={{ [permit.project_id]: siblingPermits }}
+      defaultProjectId={permit.project_id}
+      defaultPermitId={permit.id}
+    />
+  ) : null
   const addTask = editor ? (
     <TaskFormDialog
       orgSlug={orgSlug}
@@ -173,6 +187,21 @@ export default async function PermitPage({
                     ? "The reviewer asked for corrections. Add a correction task for each item so nothing is missed."
                     : undefined
                 }
+              />
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-base">Documents</CardTitle>
+              {documents.length > 0 ? upload : null}
+            </CardHeader>
+            <CardContent>
+              <DocumentList
+                documents={documents}
+                orgSlug={orgSlug}
+                names={names}
+                showPermit={false}
+                action={upload}
               />
             </CardContent>
           </Card>

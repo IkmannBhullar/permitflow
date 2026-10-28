@@ -51,7 +51,7 @@ test("golden path: register → org → project → permit → assign → correc
   await dialog.getByLabel("Application #").fill("BLD-2026-7781")
   await dialog.getByRole("button", { name: "Add permit" }).click()
   await expect(page.getByRole("heading", { name: /Building permit – fourplex/ })).toBeVisible()
-  await expect(page.getByText("Riley Super", { exact: true })).toBeVisible()
+  await expect(page.locator("dd", { hasText: "Riley Super" })).toBeVisible()
 
   // Dashboard before corrections.
   await page.getByRole("link", { name: "Dashboard" }).click()

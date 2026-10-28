@@ -10,17 +10,21 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   workers: 1,
   reporter: process.env.CI ? "github" : "list",
-  timeout: 60_000,
+  timeout: 90_000,
+  // The dev server compiles routes on first visit; give assertions room for that.
+  expect: { timeout: 15_000 },
   use: {
     baseURL,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+  // Tests run against a production build: faster and closer to what Vercel serves than dev mode.
+  // Set E2E_PORT=3000 to reuse an already running `pnpm dev` instead.
   webServer: {
-    command: `pnpm next dev --port ${PORT}`,
+    command: `pnpm build && pnpm start --port ${PORT}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
-    timeout: 120_000,
+    timeout: 240_000,
   },
 })

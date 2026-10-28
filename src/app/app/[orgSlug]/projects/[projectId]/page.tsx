@@ -8,6 +8,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ActivityTimeline } from "@/features/activity/components/activity-timeline"
 import { listActivity } from "@/features/activity/queries"
+import { DocumentList } from "@/features/documents/components/document-list"
+import { UploadDocumentDialog } from "@/features/documents/components/upload-dialog"
+import { listDocuments } from "@/features/documents/queries"
 import { canEdit, isAdmin } from "@/features/orgs/roles"
 import { PermitFormDialog } from "@/features/permits/components/permit-form-dialog"
 import { ProjectPermitsList } from "@/features/permits/components/project-permits-list"
@@ -40,12 +43,13 @@ export default async function ProjectPage({
   const { orgSlug, projectId } = await params
   const ctx = await getOrgContext(orgSlug)
   if (!ctx) notFound()
-  const [project, members, activity, permits, tasks] = await Promise.all([
+  const [project, members, activity, permits, tasks, documents] = await Promise.all([
     getProject(ctx.org.id, projectId),
     listMembers(ctx.org.id),
     listActivity(ctx.org.id, { projectId }),
     listProjectPermits(ctx.org.id, projectId),
     listTasks(ctx.org.id, { projectId }),
+    listDocuments(ctx.org.id, { projectId }),
   ])
   if (!project) notFound()
 
@@ -66,6 +70,15 @@ export default async function ProjectPage({
     />
   ) : null
   const permitOptions = permits.map((p) => ({ value: p.id, label: p.name }))
+  const upload = editable ? (
+    <UploadDocumentDialog
+      mode="new"
+      orgSlug={orgSlug}
+      projects={[{ value: project.id, label: project.name }]}
+      permitsByProject={{ [project.id]: permitOptions }}
+      defaultProjectId={project.id}
+    />
+  ) : null
   const addTask = editable ? (
     <TaskFormDialog
       orgSlug={orgSlug}
@@ -190,6 +203,16 @@ export default async function ProjectPage({
             permitOptionsFor={() => permitOptions}
             action={addTask}
           />
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between">
+          <CardTitle className="text-base">Documents</CardTitle>
+          {documents.length > 0 ? upload : null}
+        </CardHeader>
+        <CardContent>
+          <DocumentList documents={documents} orgSlug={orgSlug} names={names} action={upload} />
         </CardContent>
       </Card>
 

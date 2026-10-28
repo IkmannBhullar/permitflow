@@ -54,7 +54,7 @@ export function TaskList({
   const editor = canEdit(role)
 
   return (
-    <ul className="divide-y rounded-lg border">
+    <ul aria-label="Tasks" className="divide-y rounded-lg border">
       {tasks.map((task) => {
         const done = task.status === "done"
         const overdue = isOverdue(task, today)

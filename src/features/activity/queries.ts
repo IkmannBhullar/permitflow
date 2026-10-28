@@ -1,5 +1,7 @@
 import "server-only"
 
+import { z } from "zod"
+
 import type { Database } from "@/lib/supabase/database.types"
 import { reportError } from "@/lib/errors"
 import { createClient } from "@/lib/supabase/server"
@@ -10,7 +12,7 @@ type EntityType = Database["public"]["Enums"]["entity_type"]
 
 export async function listActivity(
   orgId: string,
-  scope: { projectId?: string; entity?: { type: EntityType; id: string } } = {},
+  scope: { projectId?: string; entity?: { type: EntityType; id: string }; permitId?: string } = {},
   limit = 30
 ): Promise<ActivityRow[]> {
   const supabase = await createClient()

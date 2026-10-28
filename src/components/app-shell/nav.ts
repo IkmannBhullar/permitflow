@@ -1,5 +1,6 @@
 import {
   FileCheck2Icon,
+  FileTextIcon,
   FolderKanbanIcon,
   LayoutDashboardIcon,
   SettingsIcon,
@@ -18,6 +19,7 @@ export const NAV_ITEMS: NavItem[] = [
   { title: "Dashboard", segment: "dashboard", icon: LayoutDashboardIcon },
   { title: "Projects", segment: "projects", icon: FolderKanbanIcon },
   { title: "Permits", segment: "permits", icon: FileCheck2Icon },
+  { title: "Documents", segment: "documents", icon: FileTextIcon },
   { title: "Team", segment: "team", icon: UsersIcon },
   { title: "Settings", segment: "settings", icon: SettingsIcon },
 ]

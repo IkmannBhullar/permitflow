@@ -22,7 +22,10 @@ test("correction tasks on a permit, overdue flag, completion and delete", async 
   await dialog.getByLabel("Due date").fill("2020-01-15")
   await dialog.getByRole("button", { name: "Add task" }).click()
 
-  const row = page.getByRole("listitem").filter({ hasText: "Revise egress window detail" })
+  const row = page
+    .getByRole("list", { name: "Tasks" })
+    .getByRole("listitem")
+    .filter({ hasText: "Revise egress window detail" })
   await expect(row.getByText("Correction")).toBeVisible()
   await expect(row.getByText("Urgent")).toBeVisible()
   await expect(row.getByText(/Overdue/)).toBeVisible()

@@ -78,3 +78,19 @@ export async function getPermit(orgId: string, permitId: string): Promise<Permit
   }
   return data
 }
+
+/** Permit id/name grouped by project, for pickers that depend on a chosen project. */
+export async function listPermitOptionsByProject(
+  orgId: string
+): Promise<Record<string, { value: string; label: string }[]>> {
+  const supabase = await createClient()
+  const { data, error } = await supabase
+    .from("permits")
+    .select("id, name, project_id")
+    .eq("org_id", orgId)
+    .order("name")
+  if (error) throw new Error(reportError("listPermitOptionsByProject", error))
+  const grouped: Record<string, { value: string; label: string }[]> = {}
+  for (const p of data) (grouped[p.project_id] ??= []).push({ value: p.id, label: p.name })
+  return grouped
+}
