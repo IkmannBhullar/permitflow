@@ -31,8 +31,9 @@ export function NotificationBell({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label={label} className="relative">
-          <BellIcon />
+        <Button variant="ghost" size="icon" className="relative">
+          <span className="sr-only">{label}</span>
+          <BellIcon aria-hidden />
           {unread ? (
             <span
               aria-hidden

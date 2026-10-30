@@ -44,9 +44,15 @@ function FilterSelect({
   const value = searchParams.get(param) ?? ALL
   // A value from a hand-edited URL that isn't an option still shows, rather than silently vanishing.
   const known = value === ALL || options.some((o) => o.value === value)
+  const current =
+    value === ALL ? allLabel : (options.find((o) => o.value === value)?.label ?? value)
   return (
     <Select value={value} onValueChange={(v) => setParams({ [param]: v === ALL ? null : v })}>
-      <SelectTrigger aria-label={label} className="w-full sm:w-auto sm:min-w-36" size="sm">
+      <SelectTrigger
+        aria-label={`${label}: ${current}`}
+        className="w-full sm:w-auto sm:min-w-36"
+        size="sm"
+      >
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

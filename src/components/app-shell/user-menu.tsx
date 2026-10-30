@@ -19,8 +19,9 @@ export function UserMenu({ name, email }: { name: string; email: string }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full" aria-label="Account menu">
-          <Avatar className="size-7">
+        <Button variant="ghost" size="icon" className="rounded-full">
+          <span className="sr-only">Account menu</span>
+          <Avatar className="size-7" aria-hidden>
             <AvatarFallback className="text-xs">{initials(name || email)}</AvatarFallback>
           </Avatar>
         </Button>

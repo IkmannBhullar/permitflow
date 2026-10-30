@@ -17,7 +17,10 @@ import { ROLE_LABELS } from "@/features/orgs/roles"
 
 function OrgAvatar({ name }: { name: string }) {
   return (
-    <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground">
+    <span
+      aria-hidden
+      className="flex size-8 shrink-0 items-center justify-center rounded-md bg-primary text-sm font-semibold text-primary-foreground"
+    >
       {name.charAt(0).toUpperCase()}
     </span>
   )
@@ -32,19 +35,17 @@ export function OrgSwitcher({ orgs, currentSlug }: { orgs: MyOrg[]; currentSlug:
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <SidebarMenuButton
-              size="lg"
-              className="data-[state=open]:bg-sidebar-accent"
-              aria-label={`Current organization: ${current.name}. Switch organization`}
-            >
+            <SidebarMenuButton size="lg" className="data-[state=open]:bg-sidebar-accent">
               <OrgAvatar name={current.name} />
               <span className="grid flex-1 text-left leading-tight">
+                <span className="sr-only">Current organization: </span>
                 <span className="truncate text-sm font-medium">{current.name}</span>
                 <span className="truncate text-xs text-muted-foreground">
                   {ROLE_LABELS[current.role]}
                 </span>
               </span>
-              <ChevronsUpDownIcon className="ml-auto" />
+              <span className="sr-only">. Switch organization</span>
+              <ChevronsUpDownIcon className="ml-auto" aria-hidden />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent

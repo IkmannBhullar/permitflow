@@ -39,7 +39,11 @@ export function MemberRoleSelect({
         })
       }
     >
-      <SelectTrigger size="sm" aria-label={`Role for ${name}`} className="w-40">
+      <SelectTrigger
+        size="sm"
+        aria-label={`Role for ${name}: ${ROLE_LABELS[role]}`}
+        className="w-40"
+      >
         <SelectValue />
       </SelectTrigger>
       <SelectContent>

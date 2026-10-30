@@ -28,6 +28,12 @@ export default async function OrgLayout({ children, params }: LayoutProps<"/app/
 
   return (
     <SidebarProvider defaultOpen={sidebarOpen}>
+      <a
+        href="#main-content"
+        className="sr-only z-50 rounded-md bg-background px-3 py-2 text-sm font-medium shadow focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:ring-2 focus:ring-ring"
+      >
+        Skip to content
+      </a>
       <AppSidebar orgs={orgs} currentSlug={ctx.org.slug} />
       <SidebarInset className="min-w-0">
         {ctx.org.is_demo ? <DemoBanner /> : null}
@@ -48,7 +54,13 @@ export default async function OrgLayout({ children, params }: LayoutProps<"/app/
             <UserMenu name={profile.full_name} email={profile.email} />
           </div>
         </header>
-        <div className="flex min-w-0 flex-1 flex-col gap-6 p-4 md:p-6">{children}</div>
+        <div
+          id="main-content"
+          tabIndex={-1}
+          className="flex min-w-0 flex-1 flex-col gap-6 p-4 outline-none md:p-6"
+        >
+          {children}
+        </div>
       </SidebarInset>
     </SidebarProvider>
   )
