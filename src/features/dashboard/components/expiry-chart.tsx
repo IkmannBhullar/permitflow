@@ -53,7 +53,7 @@ export function ExpiryChart({
               />
             }
           />
-          <Bar dataKey="count" fill="var(--color-count)" radius={4} />
+          <Bar dataKey="count" fill="var(--color-count)" radius={4} isAnimationActive={false} />
         </BarChart>
       </ChartContainer>
       <figcaption className="sr-only">{summary}</figcaption>

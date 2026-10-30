@@ -65,7 +65,7 @@ export function PermitsTable({
                 {row.original.project.name}
               </Link>
             ),
-            meta: { className: "hidden md:table-cell" },
+            meta: { className: "hidden @2xl:table-cell" },
           } satisfies ColumnDef<PermitListRow, unknown>,
         ]
       : []),
@@ -74,7 +74,7 @@ export function PermitsTable({
       accessorKey: "permit_type",
       header: "Type",
       cell: ({ row }) => PERMIT_TYPE_LABELS[row.original.permit_type],
-      meta: { className: "hidden lg:table-cell" },
+      meta: { className: "hidden @4xl:table-cell" },
     },
     {
       id: "status",
@@ -92,14 +92,14 @@ export function PermitsTable({
         ) : (
           <span className="text-muted-foreground">Unassigned</span>
         ),
-      meta: { className: "hidden lg:table-cell" },
+      meta: { className: "hidden @3xl:table-cell" },
     },
     {
       id: "submitted_at",
       accessorKey: "submitted_at",
       header: "Submitted",
       cell: ({ row }) => formatDate(row.original.submitted_at),
-      meta: { className: "hidden xl:table-cell" },
+      meta: { className: "hidden @6xl:table-cell" },
     },
     {
       id: "expires_at",
@@ -108,7 +108,7 @@ export function PermitsTable({
       cell: ({ row }) => (
         <ExpiryLabel date={row.original.expires_at} status={row.original.status} />
       ),
-      meta: { className: "hidden sm:table-cell" },
+      meta: { className: "hidden @lg:table-cell" },
     },
   ]
 

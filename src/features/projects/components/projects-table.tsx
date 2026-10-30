@@ -43,7 +43,7 @@ export function ProjectsTable({
       accessorKey: "project_type",
       header: "Type",
       cell: ({ row }) => PROJECT_TYPE_LABELS[row.original.project_type],
-      meta: { className: "hidden md:table-cell" },
+      meta: { className: "hidden @3xl:table-cell" },
     },
     {
       id: "manager",
@@ -51,20 +51,20 @@ export function ProjectsTable({
       header: "Manager",
       cell: ({ getValue }) =>
         (getValue() as string) || <span className="text-muted-foreground">None</span>,
-      meta: { className: "hidden lg:table-cell" },
+      meta: { className: "hidden @4xl:table-cell" },
     },
     {
       id: "progress",
       accessorFn: (p) => p.progress.percent,
       header: "Permits",
       cell: ({ row }) => <ProjectProgress progress={row.original.progress} compact />,
-      meta: { className: "hidden sm:table-cell" },
+      meta: { className: "hidden @lg:table-cell" },
     },
     {
       accessorKey: "target_completion_date",
       header: "Target",
       cell: ({ row }) => formatDate(row.original.target_completion_date),
-      meta: { className: "hidden md:table-cell" },
+      meta: { className: "hidden @2xl:table-cell" },
     },
     {
       accessorKey: "status",

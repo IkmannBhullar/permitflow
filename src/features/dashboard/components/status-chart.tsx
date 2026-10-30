@@ -55,6 +55,7 @@ export function StatusChart({
           <Bar
             dataKey="count"
             radius={4}
+            isAnimationActive={false}
             className="cursor-pointer"
             onClick={(entry: { payload?: { status?: PermitStatus } }) => {
               const status = entry.payload?.status

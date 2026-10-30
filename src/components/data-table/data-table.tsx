@@ -58,7 +58,7 @@ export function DataTable<TData>({
   })
 
   return (
-    <div className="overflow-hidden rounded-lg border">
+    <div className="@container overflow-hidden rounded-lg border">
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((group) => (
@@ -131,5 +131,8 @@ export function DataTable<TData>({
   )
 }
 
-/** Per-column extras: `className` hides columns on small screens, e.g. "hidden md:table-cell". */
+/**
+ * Per-column extras. `className` hides columns when the table itself is narrow, using container
+ * queries (e.g. "hidden @2xl:table-cell"), so the sidebar's width is accounted for.
+ */
 export type ColumnMeta = { className?: string }
