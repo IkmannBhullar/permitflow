@@ -2,7 +2,7 @@
 
 Read this first in every session, together with `CLAUDE.md`.
 
-## Status: Phases 0–3 complete (all P0 and P1 features). Next: Phase 4 (hardening), then Phase 5 (deploy).
+## Status: Phases 0–4 complete (P0, P1, and the ⌘K search from P2). Next: Phase 5 (docs and deploy).
 
 ### Done
 
@@ -67,6 +67,30 @@ Read this first in every session, together with `CLAUDE.md`.
 - Local Supabase no longer starts Studio or Mailpit, to save CPU on this machine.
 - Tests: 94 unit, 76 integration, 18 e2e. The golden path covers the brief's full flow: register → org → project → permit → assign → upload PDF → corrections → correction task → dashboard numbers → CSV export.
 
+**Phase 4** (one commit per step, all pushed)
+
+- Responsive:
+  - fixed page overflow at 768 and 1280 (`min-w-0` on the content column)
+  - table columns hide by the table's own width (container queries)
+  - charts no longer animate
+  - e2e: 14 pages × 3 breakpoints, no sideways scroll and no clipped tables
+- Accessibility:
+  - axe WCAG 2.1 AA scan of 19 pages and dialogs in light and dark mode: zero violations
+  - fixed contrast (avatar initials, destructive red, ⌘K badge, search result details)
+  - accessible names now include visible text
+  - skip link
+  - keyboard-only e2e
+- Security:
+  - service role only in the cron route and seed; no secrets in client bundles; no raw errors returned
+  - `orgAction` authorizes before validating
+  - unit test calls every Server Action as a viewer and as a PM
+  - more viewer RLS tests
+  - security headers (CSP frame-ancestors, XFO, nosniff, referrer, permissions, HSTS)
+  - signed-out, export, and open-redirect e2e tests
+  - production dependency audit is clean
+- P2 ⌘K search: projects and permits by name, address, application #, or jurisdiction. Quick navigation when empty. The highlight resets to the first result on each query.
+- Tests: 97 unit, 77 integration, 28 e2e.
+
 ### In progress
 
 - Nothing mid-flight.
@@ -86,13 +110,17 @@ Read this first in every session, together with `CLAUDE.md`.
 - Headless Chromium shows the "Open the PDF" fallback instead of an inline PDF; real browsers render it inline.
 - If an upload is abandoned between `prepareUpload` and `finalizeUpload`, the stored file stays orphaned (only admins can delete files). Rare and harmless; a cleanup job is possible later.
 - This machine's Docker VM (3.8 GB) also runs other projects' databases, so heavy load slows tests. Production-build e2e avoids most of it.
+- No app-level rate limiting on Server Actions; Supabase Auth rate-limits login and signup. Acceptable for a demo, worth adding before charging customers.
+- CSP covers framing, base, and form targets only. A full `script-src` policy needs nonces for Next's inline runtime and next-themes.
+- A demo visitor could change the demo PM's password or email through the Supabase Auth API with their session. The planned daily demo reset restores it.
+- P2 not done: comments on tasks, and card layout for tables on phones (tables already adapt by hiding columns).
 
 ### Next step
 
-- Phase 4 (hardening):
-  1. responsive pass at 375, 768, and 1280+ (mobile card layout for tables is P2, optional)
-  2. accessibility pass (keyboard, focus, contrast, labels)
-  3. security review: grep service-role usage, try every mutation as a viewer, error-message audit
-  4. bug fixes
-- Phase 5: README, `docs/ARCHITECTURE.md`, `docs/DEPLOYMENT.md`; hosted Supabase and Vercel; daily demo reset.
+- Phase 5:
+  1. `README.md` (what, who, screenshots, features, stack, setup in ≤10 commands, demo credentials, tests, limitations, roadmap)
+  2. `docs/ARCHITECTURE.md` (Mermaid system and ER diagrams, tenancy/RLS, auth, storage, notifications, decisions)
+  3. `docs/DEPLOYMENT.md`
+  4. daily demo reset
+  5. deploy: hosted Supabase (`supabase link` and `db push`), Vercel env vars, prod seed, verify the live demo
 - Deployment is waiting on the user running `npx vercel login` and `pnpm supabase login`.

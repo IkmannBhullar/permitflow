@@ -60,6 +60,7 @@ const modules = {
   orgs: () => import("@/features/orgs/actions"),
   permits: () => import("@/features/permits/actions"),
   projects: () => import("@/features/projects/actions"),
+  search: () => import("@/features/search/actions"),
   tasks: () => import("@/features/tasks/actions"),
   team: () => import("@/features/team/actions"),
 }
@@ -69,6 +70,7 @@ const OPEN_TO_VIEWERS = new Set([
   "getDocumentUrl",
   "markNotificationRead",
   "markAllNotificationsRead",
+  "searchOrg",
 ])
 /** Not org-scoped: they check the session themselves. */
 const NOT_ORG_SCOPED = new Set(["createOrganization"])

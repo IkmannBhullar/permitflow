@@ -10,6 +10,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { NotificationBell } from "@/features/notifications/components/notification-bell"
 import { listNotifications } from "@/features/notifications/queries"
 import { getMyProfile, listMyOrgs } from "@/features/orgs/queries"
+import { CommandMenu } from "@/features/search/components/command-menu"
 import { getOrgContext } from "@/lib/actions"
 
 export default async function OrgLayout({ children, params }: LayoutProps<"/app/[orgSlug]">) {
@@ -45,6 +46,7 @@ export default async function OrgLayout({ children, params }: LayoutProps<"/app/
           <Separator orientation="vertical" className="h-4!" />
           <span className="truncate text-sm font-medium">{ctx.org.name}</span>
           <div className="ml-auto flex items-center gap-1">
+            <CommandMenu orgSlug={ctx.org.slug} />
             <NotificationBell
               orgSlug={ctx.org.slug}
               items={notifications.items}

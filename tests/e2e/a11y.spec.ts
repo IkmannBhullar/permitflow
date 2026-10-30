@@ -64,6 +64,17 @@ for (const scheme of ["light", "dark"] as const) {
       .evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)))
     await visit("bell popover")
 
+    await page.keyboard.press("Escape")
+    await page.keyboard.press("ControlOrMeta+k")
+    await page.getByRole("dialog", { name: "Search" }).getByRole("combobox").fill("permit")
+    await expect(
+      page.getByRole("dialog", { name: "Search" }).getByRole("group", { name: "Permits" })
+    ).toBeVisible()
+    await page
+      .getByRole("dialog")
+      .evaluate((el) => Promise.all(el.getAnimations({ subtree: true }).map((a) => a.finished)))
+    await visit("search palette")
+
     expect(problems, problems.join("\n")).toEqual([])
   })
 }
