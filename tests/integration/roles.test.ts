@@ -66,6 +66,45 @@ describe("viewer is read-only", () => {
     expect(error).not.toBeNull()
   })
 
+  it("cannot add document versions, invites or members, or delete files", async () => {
+    const v = t.viewerA.client
+    const version = await v.from("document_versions").insert({
+      document_id: t.document.id,
+      org_id: t.orgA.id,
+      version: 99,
+      storage_path: `${t.orgA.id}/${t.project.id}/${t.document.id}/v99/x.pdf`,
+      size_bytes: 10,
+      mime_type: "application/pdf",
+    })
+    expect(version.error?.code).toBe("42501")
+
+    const invite = await v.from("invites").insert({
+      org_id: t.orgA.id,
+      email: "x@example.com",
+      role: "admin",
+      token_hash: hashToken(newToken()),
+    })
+    expect(invite.error?.code).toBe("42501")
+
+    await v.from("organization_members").delete().match({ org_id: t.orgA.id, user_id: t.pmA.id })
+    const { data: members } = await admin()
+      .from("organization_members")
+      .select("user_id")
+      .eq("org_id", t.orgA.id)
+    expect(members).toHaveLength(3)
+
+    await v.storage.from("documents").remove([t.storagePath])
+    const { data: file } = await t.pmA.client.storage.from("documents").download(t.storagePath)
+    expect(file).not.toBeNull()
+
+    const join = await v.rpc("create_organization", {
+      p_name: "Allowed",
+      p_slug: `viewer-own-${Date.now()}`,
+    })
+    expect(join.error).toBeNull() // anyone may create their own org; they become its admin
+    if (join.data) await admin().from("organizations").delete().eq("id", join.data.id)
+  })
+
   it("cannot see invites", async () => {
     const { data } = await t.viewerA.client.from("invites").select("*").eq("org_id", t.orgA.id)
     expect(data).toEqual([])

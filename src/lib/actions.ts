@@ -49,9 +49,9 @@ export const getOrgContext = cache(async (orgSlug: string): Promise<OrgContext |
 })
 
 /**
- * Wraps a Server Action that operates inside an org: validates input with Zod, resolves
- * the org and the caller's role, rejects roles that may not perform it (a friendly error;
- * RLS is still the real guard), and turns anything thrown into a safe message.
+ * Wraps a Server Action that operates inside an org: resolves the org and the caller's role,
+ * rejects roles that may not perform it (a friendly error; RLS is still the real guard),
+ * validates input with Zod, and turns anything thrown into a safe message.
  */
 export function orgAction<Schema extends z.ZodType, T>(
   options: { name: string; schema: Schema; roles: OrgRole[] },
@@ -59,10 +59,8 @@ export function orgAction<Schema extends z.ZodType, T>(
 ) {
   return async (orgSlug: string, rawInput: z.input<Schema>): Promise<ActionResult<T>> => {
     try {
-      const parsed = options.schema.safeParse(rawInput)
-      if (!parsed.success) return invalid(parsed.error)
-
-      const ctx = await getOrgContext(orgSlug)
+      // Authorize before validating, so callers without access learn nothing about the input.
+      const ctx = await getOrgContext(String(orgSlug))
       if (!ctx) return fail("You don't have access to this organization.")
       if (!options.roles.includes(ctx.role)) {
         return fail(
@@ -71,6 +69,9 @@ export function orgAction<Schema extends z.ZodType, T>(
             : "Viewers have read-only access. Ask an admin for edit access."
         )
       }
+
+      const parsed = options.schema.safeParse(rawInput)
+      if (!parsed.success) return invalid(parsed.error)
       return await handler(ctx, parsed.data)
     } catch (error) {
       // Let Next.js control-flow errors (redirect, notFound) propagate.
